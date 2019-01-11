@@ -2,6 +2,7 @@ import unittest
 import gspread
 import time
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.keys import Keys
 
 import settings
 from oauth2client.service_account import ServiceAccountCredentials
@@ -122,11 +123,22 @@ class ValidationTest(unittest.TestCase):
             element.submit()
 
             if data['is_valid']:
-                self.assertFalse(self.check_presence_by_type(validation[1], validation[2]))
+                self.assertFalse(self.check_presence_by_type(
+                    validation[1],
+                    validation[2]),
+                    'Check presence by type: {}, value: {}'.format(validation[1], validation[2])
+                )
             else:
-                self.assertTrue(self.check_presence_by_type(validation[1], validation[2]))
+                self.assertTrue(self.check_presence_by_type(
+                    validation[1],
+                    validation[2]),
+                    'Check presence by type: {}, value: {}'.format(validation[1], validation[2])
+                )
 
-            self.driver.refresh()
+            # self.driver.refresh()
+            element.clear()
+            element.send_keys(' ')
+            element.send_keys(Keys.BACK_SPACE)
 
     def check_exists_by_css_selector(self, selector):
         try:
