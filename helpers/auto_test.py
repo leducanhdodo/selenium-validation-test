@@ -49,7 +49,10 @@ class AutoTest:
                 'is_valid': True
             },
             {
-                'data': strategies.text(min_size=1, max_size=100).example(),
+                'data': strategies.text(min_size=1,
+                                        max_size=100,
+                                        alphabet=strategies.characters(min_codepoint=33, max_codepoint=126)
+                                        ).example(),
                 'is_valid': False
             },
             {
@@ -58,14 +61,16 @@ class AutoTest:
             },
         ]
 
-    def generate_data_for_url(self):
+    @staticmethod
+    def generate_data_for_url():
         regex = '^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$'
-        list_urls = strategies.lists(strategies.from_regex(regex=regex)).example()
-        if len(list_urls) == 0:
-            return self.generate_data_for_url()
+        list_urls = strategies.lists(elements=strategies.from_regex(regex=regex), min_size=4).example()
         test_cases = [
             {
-                'data': strategies.text(min_size=1, max_size=100).example(),
+                'data': strategies.text(
+                    min_size=1,
+                    max_size=100,
+                    alphabet=strategies.characters(min_codepoint=33, max_codepoint=126)).example(),
                 'is_valid': False
             },
             {

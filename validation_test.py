@@ -57,6 +57,8 @@ class ValidationTest(unittest.TestCase):
                             element.send_keys(record['Value'])
                         elif record['Action'] == 'visit':
                             self.driver.get(record['Value'])
+                        elif record['Action'] == 'wait':
+                            time.sleep(record['Value'])
                         elif record['Action'] == 'click':
                             element = WebDriverWait(self.driver, 10).until(
                                 expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, record['Selector']))
@@ -75,36 +77,56 @@ class ValidationTest(unittest.TestCase):
         )
 
         if record_data['Required']:
-            if record_data['Required']:
-                test_data = AutoTest.generate_data_for_require(record_data=record_data,
-                                                               input_type=element.get_attribute('type'))
-                validation = common.parse_validation_type(record_data['Required'])
-
-                for data in test_data:
-                    element = WebDriverWait(self.driver, 20).until(
-                        expected_conditions.presence_of_element_located(
-                            (By.CSS_SELECTOR, record_data['Selector'])
-                        )
-                    )
-                    element.send_keys(data['data'])
-                    time.sleep(0.7)
-                    element.submit()
-
-                    if data['is_valid']:
-                        self.assertFalse(self.check_presence_by_type(validation[1], validation[2]))
-                    else:
-                        self.assertTrue(self.check_presence_by_type(validation[1], validation[2]))
-
-                    self.driver.refresh()
+            test_data = AutoTest.generate_data_for_require(record_data=record_data,
+                                                           input_type=element.get_attribute('type'))
+            self.handle_test_input(record_data['Required'], record_data, test_data)
 
         elif record_data['Is Email']:
-            pass
+            test_data = AutoTest.generate_data_for_email()
+            self.handle_test_input(record_data['Is Email'], record_data, test_data)
         elif record_data['Is Url']:
-            pass
+            test_data = AutoTest.generate_data_for_url()
+            self.handle_test_input(record_data['Is Url'], record_data, test_data)
         elif record_data['Max Length'] or record_data['Min Length']:
             pass
-        elif record_data['Min'] or record_data['Max']:
-            pass
+        elif record_data['Min']:
+            min_validation = common.parse_validation_type(record_data['Min'])
+            if record_data['Max']:
+                max_validation = common.parse_validation_type(record_data['Max'])
+                max_value = max_validation[0]
+            else:
+                max_value = None
+            test_min_data = AutoTest.generate_data_for_min(min_validation[0], max_value)
+            self.handle_test_input(record_data['Min'], record_data, test_min_data)
+        elif record_data['Max']:
+            if record_data['Min']:
+                min_validation = common.parse_validation_type(record_data['Min'])
+                min_value = min_validation[0]
+            else:
+                min_value = None
+            max_validation = common.parse_validation_type(record_data['Max'])
+            test_max_data = AutoTest.generate_data_for_max(max_validation[0], min_value)
+            self.handle_test_input(record_data['Max'], record_data, test_max_data)
+
+    def handle_test_input(self, validation_data, record_data, generated_data):
+        validation = common.parse_validation_type(validation_data)
+
+        for data in generated_data:
+            element = WebDriverWait(self.driver, 20).until(
+                expected_conditions.presence_of_element_located(
+                    (By.CSS_SELECTOR, record_data['Selector'])
+                )
+            )
+            element.send_keys(data['data'])
+            time.sleep(0.7)
+            element.submit()
+
+            if data['is_valid']:
+                self.assertFalse(self.check_presence_by_type(validation[1], validation[2]))
+            else:
+                self.assertTrue(self.check_presence_by_type(validation[1], validation[2]))
+
+            self.driver.refresh()
 
     def check_exists_by_css_selector(self, selector):
         try:
