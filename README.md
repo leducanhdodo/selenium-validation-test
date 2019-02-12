@@ -35,6 +35,17 @@ Config configuration (setting)
 cp settings/settings.sample.py settings.py
 ```
 
+Install chromedriver
+```sh
+The latest drivers can be found at:
+
+https://sites.google.com/a/chromium.org/chromedriver/downloads
+
+Download and copy to correct directory
+For windows: C:\Windows
+For mac/ubuntu: /usr/local/bin
+```
+
 Run test
 
 ```sh
