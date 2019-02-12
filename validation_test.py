@@ -90,26 +90,41 @@ class ValidationTest(unittest.TestCase):
         if record_data['Is Url']:
             test_data = AutoTest.generate_data_for_url()
             self.handle_test_input(record_data['Is Url'], record_data, test_data)
-        if record_data['Max Length'] or record_data['Min Length']:
-            test_data = AutoTest.generate_data_for_text(record_data['Max Length'], record_data['Min Length'])
-            self.handle_test_input(record_data['Is Url'], record_data, test_data)
+        if record_data['Max Length']:
+            max_validation = common.parse_validation_type(record_data['Max Length'])
+            if record_data['Min Length']:
+                min_validation = common.parse_validation_type(record_data['Min Length'])
+                min_value = int(min_validation[0])
+            else:
+                min_value = None
+            test_data = AutoTest.generate_data_for_max_length(int(max_validation[0]), min_value)
+            self.handle_test_input(record_data['Max Length'], record_data, test_data)
+        if record_data['Min Length']:
+            min_validation = common.parse_validation_type(record_data['Min Length'])
+            if record_data['Max Length']:
+                max_validation = common.parse_validation_type(record_data['Max Length'])
+                max_value = int(max_validation[0])
+            else:
+                max_value = None
+            test_data = AutoTest.generate_data_for_min_length(int(min_validation[0]), max_value)
+            self.handle_test_input(record_data['Min Length'], record_data, test_data)
         if record_data['Min']:
             min_validation = common.parse_validation_type(record_data['Min'])
             if record_data['Max']:
                 max_validation = common.parse_validation_type(record_data['Max'])
-                max_value = max_validation[0]
+                max_value = int(max_validation[0])
             else:
                 max_value = None
-            test_min_data = AutoTest.generate_data_for_min(min_validation[0], max_value)
+            test_min_data = AutoTest.generate_data_for_min(int(min_validation[0]), max_value)
             self.handle_test_input(record_data['Min'], record_data, test_min_data)
         if record_data['Max']:
             if record_data['Min']:
                 min_validation = common.parse_validation_type(record_data['Min'])
-                min_value = min_validation[0]
+                min_value = int(min_validation[0])
             else:
                 min_value = None
             max_validation = common.parse_validation_type(record_data['Max'])
-            test_max_data = AutoTest.generate_data_for_max(max_validation[0], min_value)
+            test_max_data = AutoTest.generate_data_for_max(int(max_validation[0]), min_value)
             self.handle_test_input(record_data['Max'], record_data, test_max_data)
 
     def handle_test_input(self, validation_data, record_data, generated_data):

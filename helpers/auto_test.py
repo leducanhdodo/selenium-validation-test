@@ -1,5 +1,7 @@
 from hypothesis import strategies
 
+from helpers import common
+
 
 class AutoTest:
     @staticmethod
@@ -10,16 +12,16 @@ class AutoTest:
             regex = '^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$'
             data = strategies.from_regex(regex=regex).example()
         elif record_data['Max Length'] or record_data['Min Length']:
-            min_size = record_data['Min Length'] if record_data['Min Length'] else None
-            max_size = record_data['Max Length'] if record_data['Max Length'] else None
+            min_size = int(common.parse_validation_type(record_data['Min Length'])[0]) if record_data['Min Length'] else None
+            max_size = int(common.parse_validation_type(record_data['Max Length'])[0]) if record_data['Max Length'] else None
             data = strategies.text(
                 min_size=min_size,
                 max_size=max_size,
                 alphabet=strategies.characters(min_codepoint=33, max_codepoint=126)
             ).example()
         elif record_data['Min'] or record_data['Max']:
-            min_value = record_data['Min'] if record_data['Min'] else None
-            max_value = record_data['Max'] if record_data['Max'] else None
+            min_value = int(common.parse_validation_type(record_data['Min'])[0]) if record_data['Min'] else None
+            max_value = int(common.parse_validation_type(record_data['Max'])[0]) if record_data['Max'] else None
             data = strategies.integers(min_value=min_value, max_value=max_value).example()
         else:
             if input_type == 'number':
@@ -93,7 +95,8 @@ class AutoTest:
             })
         return test_cases
 
-    def generate_data_for_min(self, min_value, max_value=None):
+    @staticmethod
+    def generate_data_for_min(min_value, max_value=None):
         # Valid
         list_integers = strategies.lists(
             elements=strategies.integers(min_value=min_value, max_value=max_value),
@@ -120,7 +123,8 @@ class AutoTest:
             })
         return test_cases
 
-    def generate_data_for_max(self, max_value, min_value=None):
+    @staticmethod
+    def generate_data_for_max(max_value, min_value=None):
         # Valid
         list_integers = strategies.lists(
             elements=strategies.integers(min_value=min_value, max_value=max_value),
@@ -146,7 +150,8 @@ class AutoTest:
                 'is_valid': False
             })
 
-    def generate_data_for_text(self, min_length=None, max_length=None):
+    @staticmethod
+    def generate_data_for_min_length(min_length, max_length=None):
         list_texts = strategies.lists(
             elements=strategies.text(
                 min_size=min_length,
@@ -162,34 +167,53 @@ class AutoTest:
                 'data': text,
                 'is_valid': True
             })
-        if min_length and min_length > 1:
-            invalid_list_texts = strategies.lists(
-                elements=strategies.text(
-                    min_size=0,
-                    max_size=min_length - 1,
-                    alphabet=strategies.characters(min_codepoint=33, max_codepoint=126)
-                ),
-                min_size=4
-            ).example()
 
-            for text in invalid_list_texts:
-                test_cases.append({
-                    'data': text,
-                    'is_valid': False
-                })
+        invalid_list_texts = strategies.lists(
+            elements=strategies.text(
+                min_size=min_length - 2,
+                max_size=min_length - 1,
+                alphabet=strategies.characters(min_codepoint=33, max_codepoint=126)
+            ),
+            min_size=4
+        ).example()
 
-        if max_length and max_length > 0:
-            invalid_list_texts = strategies.lists(
-                elements=strategies.text(
-                    min_size=max_length + 1,
-                    alphabet=strategies.characters(min_codepoint=33, max_codepoint=126)
-                ),
-                min_size=4
-            ).example()
+        for text in invalid_list_texts:
+            test_cases.append({
+                'data': text,
+                'is_valid': False
+            })
+        return test_cases
 
-            for text in invalid_list_texts:
-                test_cases.append({
-                    'data': text,
-                    'is_valid': False
-                })
+    @staticmethod
+    def generate_data_for_max_length(max_length, min_length=None):
+        list_texts = strategies.lists(
+            elements=strategies.text(
+                min_size=min_length,
+                max_size=max_length,
+                alphabet=strategies.characters(min_codepoint=33, max_codepoint=126)
+            ),
+            min_size=3
+        ).example()
+
+        test_cases = []
+        for text in list_texts:
+            test_cases.append({
+                'data': text,
+                'is_valid': True
+            })
+
+        invalid_list_texts = strategies.lists(
+            elements=strategies.text(
+                min_size=max_length + 1,
+                max_size=max_length + 2,
+                alphabet=strategies.characters(min_codepoint=33, max_codepoint=126)
+            ),
+            min_size=4
+        ).example()
+
+        for text in invalid_list_texts:
+            test_cases.append({
+                'data': text,
+                'is_valid': False
+            })
         return test_cases
