@@ -150,13 +150,13 @@ class ValidationTest(unittest.TestCase):
                 self.assertFalse(self.check_presence_by_type(
                     validation[1],
                     validation[2]),
-                    'See presence by type: {}, value: {}'.format(validation[1], validation[2])
+                    'See presence by type: {}, value: {}, with input data: {}'.format(validation[1], validation[2], data['data'])
                 )
             else:
                 self.assertTrue(self.check_presence_by_type(
                     validation[1],
                     validation[2]),
-                    'Cannot see presence by type: {}, value: {}'.format(validation[1], validation[2])
+                    'Cannot see presence by type: {}, value: {}, with input data: {}'.format(validation[1], validation[2], data['data'])
                 )
 
             # self.driver.refresh()
@@ -173,7 +173,6 @@ class ValidationTest(unittest.TestCase):
 
     def check_presence_by_type(self, check_type, check_data=None):
         if check_type == 'Text':
-            print(check_data)
             return check_data in self.driver.page_source
         return False
 
