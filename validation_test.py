@@ -136,21 +136,27 @@ class ValidationTest(unittest.TestCase):
                     (By.CSS_SELECTOR, record_data['Selector'])
                 )
             )
-            element.send_keys(data['data'])
+            if not data['data']:
+                element.clear()
+                element.send_keys(' ')
+                element.send_keys(Keys.BACK_SPACE)
+            else:
+                element.send_keys(data['data'])
             time.sleep(0.7)
             element.submit()
+            time.sleep(1)
 
             if data['is_valid']:
                 self.assertFalse(self.check_presence_by_type(
                     validation[1],
                     validation[2]),
-                    'Check presence by type: {}, value: {}'.format(validation[1], validation[2])
+                    'See presence by type: {}, value: {}'.format(validation[1], validation[2])
                 )
             else:
                 self.assertTrue(self.check_presence_by_type(
                     validation[1],
                     validation[2]),
-                    'Check presence by type: {}, value: {}'.format(validation[1], validation[2])
+                    'Cannot see presence by type: {}, value: {}'.format(validation[1], validation[2])
                 )
 
             # self.driver.refresh()
@@ -167,6 +173,7 @@ class ValidationTest(unittest.TestCase):
 
     def check_presence_by_type(self, check_type, check_data=None):
         if check_type == 'Text':
+            print(check_data)
             return check_data in self.driver.page_source
         return False
 
