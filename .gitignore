@@ -4,7 +4,7 @@ __pycache__/
 .idea/*
 .hypothesis
 
-e1_scraper/settings.py
+settings.py
 
 #logs
 pg_upgrade_internal.log

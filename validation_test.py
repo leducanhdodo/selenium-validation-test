@@ -47,6 +47,8 @@ class ValidationTest(unittest.TestCase):
                 records = sheet.get_all_records()
 
                 for record in records:
+                    if 'Step Name' not in record:
+                        continue
                     # Start subTest by Step name
                     with self.subTest('{} - {}'.format(sheet.title, record['Step Name'])):
                         if record['Action'] == 'set_value':
@@ -82,15 +84,16 @@ class ValidationTest(unittest.TestCase):
                                                            input_type=element.get_attribute('type'))
             self.handle_test_input(record_data['Required'], record_data, test_data)
 
-        elif record_data['Is Email']:
+        if record_data['Is Email']:
             test_data = AutoTest.generate_data_for_email()
             self.handle_test_input(record_data['Is Email'], record_data, test_data)
-        elif record_data['Is Url']:
+        if record_data['Is Url']:
             test_data = AutoTest.generate_data_for_url()
             self.handle_test_input(record_data['Is Url'], record_data, test_data)
-        elif record_data['Max Length'] or record_data['Min Length']:
-            pass
-        elif record_data['Min']:
+        if record_data['Max Length'] or record_data['Min Length']:
+            test_data = AutoTest.generate_data_for_text(record_data['Max Length'], record_data['Min Length'])
+            self.handle_test_input(record_data['Is Url'], record_data, test_data)
+        if record_data['Min']:
             min_validation = common.parse_validation_type(record_data['Min'])
             if record_data['Max']:
                 max_validation = common.parse_validation_type(record_data['Max'])
@@ -99,7 +102,7 @@ class ValidationTest(unittest.TestCase):
                 max_value = None
             test_min_data = AutoTest.generate_data_for_min(min_validation[0], max_value)
             self.handle_test_input(record_data['Min'], record_data, test_min_data)
-        elif record_data['Max']:
+        if record_data['Max']:
             if record_data['Min']:
                 min_validation = common.parse_validation_type(record_data['Min'])
                 min_value = min_validation[0]
