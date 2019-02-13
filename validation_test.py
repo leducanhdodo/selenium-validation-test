@@ -132,12 +132,19 @@ class ValidationTest(unittest.TestCase):
 
         for data in generated_data:
             element = WebDriverWait(self.driver, 20).until(
-                expected_conditions.presence_of_element_located(
+                expected_conditions.element_to_be_clickable(
                     (By.CSS_SELECTOR, record_data['Selector'])
                 )
             )
+            element.submit()
             if not data['data']:
-                element.clear()
+                input_value = element.get_attribute('value')
+                # element.clear()
+                if len(input_value) > 0:
+                    i = 0
+                    while i < len(input_value):
+                        element.send_keys(Keys.BACK_SPACE)
+                        i = i + 1
                 element.send_keys(' ')
                 element.send_keys(Keys.BACK_SPACE)
             else:
@@ -160,7 +167,14 @@ class ValidationTest(unittest.TestCase):
                 )
 
             # self.driver.refresh()
-            element.clear()
+            # element.clear()
+            input_value = element.get_attribute('value')
+            # element.clear()
+            if len(input_value) > 0:
+                i = 0
+                while i < len(input_value):
+                    element.send_keys(Keys.BACK_SPACE)
+                    i = i + 1
             element.send_keys(' ')
             element.send_keys(Keys.BACK_SPACE)
 
