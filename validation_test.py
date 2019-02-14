@@ -69,6 +69,12 @@ class ValidationTest(unittest.TestCase):
                             element.click()
                         elif record['Action'] == 'check_presence':
                             self.assertTrue(self.check_exists_by_css_selector(record['Selector']))
+                        elif record['Action'] == 'clear':
+                            if self.check_exists_by_css_selector(record['Selector']):
+                                element = WebDriverWait(self.driver, 10).until(
+                                    expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, record['Selector']))
+                                )
+                                common.clear_element(element)
                         elif record['Action'] == 'autotest':
                             self.handle_auto_test_field(record)
 
@@ -138,15 +144,7 @@ class ValidationTest(unittest.TestCase):
             )
             element.submit()
             if not data['data']:
-                input_value = element.get_attribute('value')
-                # element.clear()
-                if len(input_value) > 0:
-                    i = 0
-                    while i < len(input_value):
-                        element.send_keys(Keys.BACK_SPACE)
-                        i = i + 1
-                element.send_keys(' ')
-                element.send_keys(Keys.BACK_SPACE)
+                common.clear_element(element)
             else:
                 element.send_keys(data['data'])
             time.sleep(0.7)
@@ -168,15 +166,7 @@ class ValidationTest(unittest.TestCase):
 
             # self.driver.refresh()
             # element.clear()
-            input_value = element.get_attribute('value')
-            # element.clear()
-            if len(input_value) > 0:
-                i = 0
-                while i < len(input_value):
-                    element.send_keys(Keys.BACK_SPACE)
-                    i = i + 1
-            element.send_keys(' ')
-            element.send_keys(Keys.BACK_SPACE)
+            common.clear_element(element)
 
     def check_exists_by_css_selector(self, selector):
         try:
