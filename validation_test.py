@@ -68,7 +68,28 @@ class ValidationTest(unittest.TestCase):
                             )
                             element.click()
                         elif record['Action'] == 'check_presence':
-                            self.assertTrue(self.check_exists_by_css_selector(record['Selector']))
+                            self.assertTrue(
+                                self.check_exists_by_css_selector(record['Selector']),
+                                'Cannot find selector {} in the page'.format(record['Selector'])
+                            )
+                        elif record['Action'] == 'check_presence_with_value':
+                            is_exist = self.check_exists_by_css_selector(record['Selector'])
+                            self.assertTrue(is_exist)
+                            if is_exist:
+                                element = WebDriverWait(self.driver, 10).until(
+                                    expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, record['Selector']))
+                                )
+                                input_value = element.get_attribute('value')
+                                self.assertEqual(
+                                    input_value,
+                                    record['Value'],
+                                    'Cannot see value: {}, actual value: {}'.format(record['Value'], input_value)
+                                )
+                        elif record['Action'] == 'check_presence_of_text':
+                            self.assertTrue(
+                                self.check_presence_by_type('Text', record['Value']),
+                                'Cannot see text in the page: {}'.format(record['Value'])
+                            )
                         elif record['Action'] == 'clear':
                             if self.check_exists_by_css_selector(record['Selector']):
                                 element = WebDriverWait(self.driver, 10).until(
